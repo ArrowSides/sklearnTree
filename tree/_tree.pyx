@@ -139,7 +139,13 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
 
         # check input
         X, y, sample_weight = self._check_input(X, y, sample_weight)
-
+        print("---------------------test code------------------")
+        print("X:")
+        print(X)
+        print("Y:")
+        print(y)
+        print("sample weight:")
+        print(sample_weight)
         cdef DOUBLE_t* sample_weight_ptr = NULL
         if sample_weight is not None:
             sample_weight_ptr = <DOUBLE_t*> sample_weight.data
@@ -187,6 +193,11 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
         cdef Stack stack = Stack(INITIAL_STACK_SIZE)
         cdef StackRecord stack_record
 
+
+# -------------------------------------building stage--------------------------------
+        print("-----------------------node samples------------------------")
+        print(n_node_samples)
+        print("-----------------------Begin Build------------------------")
         with nogil:
             # push root node onto stack
             rc = stack.push(0, n_node_samples, 0, _TREE_UNDEFINED, 0, INFINITY, 0)
@@ -265,6 +276,7 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
                 tree.max_depth = max_depth_seen
         if rc == -1:
             raise MemoryError()
+        print("------------------------Build End--------------------------")
 
 
 # Best first builder ----------------------------------------------------------

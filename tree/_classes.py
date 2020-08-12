@@ -192,7 +192,9 @@ class BaseDecisionTree(MultiOutputMixin, BaseEstimator, metaclass=ABCMeta):
                 self.classes_.append(classes_k)
                 self.n_classes_.append(classes_k.shape[0])
             y = y_encoded
-
+            print("---------------------Encoded Y---------------------\n")
+            print(y_encoded)
+            print("\n--------------------End----------------------------\n")
             if self.class_weight is not None:
                 expanded_class_weight = compute_sample_weight(
                     self.class_weight, y_original)
@@ -353,7 +355,14 @@ class BaseDecisionTree(MultiOutputMixin, BaseEstimator, metaclass=ABCMeta):
                               np.array([1] * self.n_outputs_, dtype=np.intp),
                               self.n_outputs_)
 
+        print("---------------------------Before Build---------------------------")
+        print(self.n_features_)
+        print(self.n_classes_)
+        print(self.n_outputs_)
+        print("--------------------------------END-------------------------------")
+
         # Use BestFirst if max_leaf_nodes given; use DepthFirst otherwise
+		# Needs to Notice 1
         if max_leaf_nodes < 0:
             builder = DepthFirstTreeBuilder(splitter, min_samples_split,
                                             min_samples_leaf,
