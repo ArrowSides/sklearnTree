@@ -207,6 +207,13 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
                     raise MemoryError()
 
             while not stack.is_empty():
+                with gil:
+                     if tree.node_count > 0:
+                           print("--------------Tree Structure-------------")
+                           print(tree.node_count, tree.max_depth, tree.capacity, tree.children_left[0], tree.children_right[0])
+                           print(tree.n_leaves)
+                           print(type(tree), tree.max_depth)
+                           print("-----------------Tree End--------------")
                 stack.pop(&stack_record)
 
                 start = stack_record.start
