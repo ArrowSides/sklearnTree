@@ -80,7 +80,6 @@ clfs = {
 
 def find_point(Xsets):
     DistanceList = []
-#	dist = numpy.linalg.norm(vector1 - vector2)
     for i in range(len(Xsets)):
         temp_dist = 0
         for j in range(len(Xsets)):
@@ -99,11 +98,17 @@ def get_new_data(clf, X_test):
         if res_leaf[index] not in leaf_node:
             leaf_node.append(res_leaf[index])
         group_matrix[leaf_node.index(res_leaf[index])].append(index)
+
     #print(group_matrix)
-    print(X_test)
-    print(X_test.columns)
-    print(find_point(X_test.values[0:100]))
-    print(X_test.values[0])
+    for index in range(clf.get_n_leaves()):
+        typical_node = []
+        for res_node in group_matrix[index]:
+            typical_node.append(X_test.values[res_node: res_node + 1])
+        print(find_point(typical_node))
+    #print(X_test)
+    #print(X_test.columns)
+    #print(len(X_test.values))
+    #print(X_test.values[0])
     return res
 
     
