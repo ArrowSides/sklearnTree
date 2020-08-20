@@ -154,7 +154,7 @@ for clf_key in clfs.keys():
 #    print('the elapsed is:', elapsed)
 #    print(X_test.to_numpy())
     print("Begin Create!")
-    X_new_train, y_new_train = get_new_data(clf, X_test, y_test)
+    X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     print("Create End!")
     PredictionTest(X_new_train, X_test, y_new_train, y_test)
     print("the prediction is:", prediction)
