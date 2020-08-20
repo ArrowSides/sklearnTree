@@ -123,7 +123,7 @@ def get_new_data(clf, X, y):
     #res_DataFrame = pd.DataFrame(data = res, columns = X.columns())
     res_DataFrame = pd.read_csv(file_name)
     os.remove(file_name)
-    res_Label = pd.DataFrame(data = res_label, columns = y.columns.values)
+    res_Label = pd.Series(res_label)
     return res_DataFrame, res_Label
 
 
