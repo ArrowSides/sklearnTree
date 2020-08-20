@@ -53,7 +53,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_s
 #print(X_test.shape, y_test.shape)
 k = 100
 
-print(type(y_test))
+#print(type(y_test))
 clfs = {
 #        'K_neighbor': neighbors.KNeighborsClassifier(),
         'decision_tree': tree.DecisionTreeClassifier(min_samples_leaf=k),
@@ -105,7 +105,7 @@ def get_new_data(clf, X, y):
             temp_list = []
             temp_list.append(X.to_numpy()[represent_point_ind[ind]])
             temp_pd_data = pd.DataFrame(temp_list, columns = X.columns.values)#, columns = X.columns())
-            if (ind == 0 & i == 0):
+            if ((ind == 0) & (i == 0)):
                   temp_pd_data.to_csv(file_name, mode='a+', index=False)
             else:
                   temp_pd_data.to_csv(file_name, mode='a+', index=False, header=False)
@@ -147,16 +147,16 @@ for clf_key in clfs.keys():
     #print(X_test)
     #print(y_test.ravel())
     prediction = np.divide((y_train == clf.predict(X_train)).sum(), y_train.size, dtype = float)
-    print("the prediction is:", prediction)
 #    res_leaf = clf.apply(X_test)
 #    print(res_leaf[3])
 #    print('the score is:', res_leaf)
 #    print('Tree leafs: ', clf.get_n_leaves())
-    print('the elapsed is:', elapsed)
+#    print('the elapsed is:', elapsed)
 #    print(X_test.to_numpy())
     print("Begin Create!")
     X_new_train, y_new_train = get_new_data(clf, X_test, y_test)
     print("Create End!")
     PredictionTest(X_new_train, X_test, y_new_train, y_test)
+    print("the prediction is:", prediction)
 
     #print(len(get_new_data(clf, X_test)))
