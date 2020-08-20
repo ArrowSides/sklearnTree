@@ -104,7 +104,7 @@ def get_new_data(clf, X, y):
         for i in tqdm(range(len(group_matrix[ind]))):
             temp_list = []
             temp_list.append(X.to_numpy()[represent_point_ind[ind]])
-            temp_pd_data = pd.DataFrame(temp_list)#, columns = X.columns())
+            temp_pd_data = pd.DataFrame(temp_list, columns = X.columns.values)#, columns = X.columns())
             if (ind == 0 & i == 0):
                   temp_pd_data.to_csv(file_name, mode='a+', index=False)
             else:
@@ -123,7 +123,7 @@ def get_new_data(clf, X, y):
     #res_DataFrame = pd.DataFrame(data = res, columns = X.columns())
     res_DataFrame = pd.read_csv(file_name)
     os.remove(file_name)
-    res_Label = pd.DataFrame(data = res_label, columns = y.columns())
+    res_Label = pd.DataFrame(data = res_label, columns = y.columns.values)
     return res_DataFrame, res_Label
 
 
