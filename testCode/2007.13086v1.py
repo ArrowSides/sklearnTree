@@ -15,8 +15,7 @@ from sklearn.ensemble import GradientBoostingClassifier
 import time
 from tqdm import trange, tqdm
 import gc, os
-path = "./Data/UCI/ConfLongDemo_JSI.txt"
-df = pd.read_table(path, sep=',')
+
 
 def preprocessing(df):
     cat_features = ['SequenceName', 'TagIdentificator']
@@ -45,18 +44,14 @@ def preprocessing(df):
 
     return X, y
 
-X, y = preprocessing(df)
 
-
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.10, shuffle=True)
 #print(X_train.shape, y_train.shape)
 #print(X_test.shape, y_test.shape)
-k = 100
 
-#print(type(y_test))
-clfs = {
+
+#clfs = {
 #        'K_neighbor': neighbors.KNeighborsClassifier(),
-        'decision_tree': tree.DecisionTreeClassifier(min_samples_leaf=k),
+#        'decision_tree': tree.DecisionTreeClassifier(min_samples_leaf=k),
 #        'naive_gaussian': naive_bayes.GaussianNB(),
 #        'svm': svm.SVC(),
 #        'bagging_knn': BaggingClassifier(neighbors.KNeighborsClassifier(), max_samples=0.5,max_features=0.5),
@@ -64,7 +59,7 @@ clfs = {
 #        'random_forest': RandomForestClassifier(n_estimators=50),
 #        'adaboost': AdaBoostClassifier(n_estimators=50),
 #        'gradient_boost': GradientBoostingClassifier(n_estimators=50, learning_rate=1.0,max_depth=1, random_state=0)
-        }
+#        }
 
 def find_point(Xsets):
     DistanceList = []
@@ -127,36 +122,51 @@ def get_new_data(clf, X, y):
     return res_DataFrame, res_Label
 
 
-def PredictionTest(X_train, X_test, y_train, y_test):
+def PredictionTest(X_train, X_test, y_train, y_test, k):
     clf_tree = tree.DecisionTreeClassifier(min_samples_leaf=k)
     clf_tree.fit(X_train, y_train.ravel(), )
-    predict = np.divide((y_train == clf.predict(X_train)).sum(), y_train.size, dtype = float)
-    print("The New Prediction:", predict)
+    predict = np.divide((y_train == clf_tree.predict(X_train)).sum(), y_train.size, dtype = float)
+    return predict, clf_tree
 
-
-for clf_key in clfs.keys():
-    print('\nthe classifier is:', clf_key)
-    clf = clfs[clf_key]
-    #print(type(y_train.ravel()))
-    #print(np.isnan(X_train).any())
-    #print(np.count_nonzero(np.isnan(X_train)))
-    #print(np.isnan(X_train))
-    begin = time.process_time()
-    clf.fit(X_train, y_train.ravel(), )
-    elapsed = time.process_time() - begin
-    #print(X_test)
-    #print(y_test.ravel())
-    prediction = np.divide((y_train == clf.predict(X_train)).sum(), y_train.size, dtype = float)
-#    res_leaf = clf.apply(X_test)
-#    print(res_leaf[3])
-#    print('the score is:', res_leaf)
-#    print('Tree leafs: ', clf.get_n_leaves())
-#    print('the elapsed is:', elapsed)
-#    print(X_test.to_numpy())
+if __name__ = '__main__':
+    path = "./Data/UCI/ConfLongDemo_JSI.txt"
+    df = pd.read_table(path, sep=',')
+    k = 100
+    X, y = preprocessing(df)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.10, shuffle=True)
+    print('\nthe classifier is:', 'decision_tree')
+    prediction, clf = PredictionTest(X_train, X_test, y_train, y_test, k)
+    print("the prediction is:", prediction)
     print("Begin Create!")
     X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     print("Create End!")
-    PredictionTest(X_new_train, X_test, y_new_train, y_test)
+    new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, k)
     print("the prediction is:", prediction)
+    print("the new prediction is:", new_prediction)
+
+# for clf_key in clfs.keys():
+#     print('\nthe classifier is:', clf_key)
+#     clf = clfs[clf_key]
+#     #print(type(y_train.ravel()))
+#     #print(np.isnan(X_train).any())
+#     #print(np.count_nonzero(np.isnan(X_train)))
+#     #print(np.isnan(X_train))
+#     begin = time.process_time()
+#     clf.fit(X_train, y_train.ravel(), )
+#     elapsed = time.process_time() - begin
+#     #print(X_test)
+#     #print(y_test.ravel())
+#     prediction = np.divide((y_train == clf.predict(X_train)).sum(), y_train.size, dtype = float)
+# #    res_leaf = clf.apply(X_test)
+# #    print(res_leaf[3])
+# #    print('the score is:', res_leaf)
+# #    print('Tree leafs: ', clf.get_n_leaves())
+# #    print('the elapsed is:', elapsed)
+# #    print(X_test.to_numpy())
+#     print("Begin Create!")
+#     X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
+#     print("Create End!")
+#     PredictionTest(X_new_train, X_test, y_new_train, y_test)
+#     print("the prediction is:", prediction)
 
     #print(len(get_new_data(clf, X_test)))
