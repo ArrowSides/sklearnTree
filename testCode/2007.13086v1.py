@@ -14,7 +14,7 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import GradientBoostingClassifier 
 import time
 from tqdm import trange, tqdm
-import gc, os
+import os
 
 
 def preprocessing(df):
@@ -117,7 +117,7 @@ def get_new_data(clf, X, y):
     #print(np.array(res))
     #res_DataFrame = pd.DataFrame(data = res, columns = X.columns())
     res_DataFrame = pd.read_csv(file_name)
-    os.remove(file_name)
+    #os.remove(file_name)
     res_Label = pd.Series(res_label)
     return res_DataFrame, res_Label
 
@@ -128,7 +128,7 @@ def PredictionTest(X_train, X_test, y_train, y_test, k):
     predict = np.divide((y_train == clf_tree.predict(X_train)).sum(), y_train.size, dtype = float)
     return predict, clf_tree
 
-if __name__ = '__main__':
+if __name__ == '__main__':
     path = "./Data/UCI/ConfLongDemo_JSI.txt"
     df = pd.read_table(path, sep=',')
     k = 100
@@ -140,7 +140,7 @@ if __name__ = '__main__':
     print("Begin Create!")
     X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     print("Create End!")
-    new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, k)
+    new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, 1)
     print("the prediction is:", prediction)
     print("the new prediction is:", new_prediction)
 
