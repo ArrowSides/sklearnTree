@@ -96,7 +96,7 @@ def get_new_data(clf, X, y):
 #    f = open("tempX", "w")
     file_name = "tempX"
     for ind in tqdm(range(clf.get_n_leaves())):
-        for i in tqdm(range(len(group_matrix[ind]))):
+        for i in range(len(group_matrix[ind])):
             temp_list = []
             temp_list.append(X.to_numpy()[represent_point_ind[ind]])
             temp_pd_data = pd.DataFrame(temp_list, columns = X.columns.values)#, columns = X.columns())
@@ -117,7 +117,7 @@ def get_new_data(clf, X, y):
     #print(np.array(res))
     #res_DataFrame = pd.DataFrame(data = res, columns = X.columns())
     res_DataFrame = pd.read_csv(file_name)
-    #os.remove(file_name)
+    os.remove(file_name)
     res_Label = pd.Series(res_label)
     return res_DataFrame, res_Label
 
@@ -138,12 +138,17 @@ if __name__ == '__main__':
     prediction, clf = PredictionTest(X_train, X_test, y_train, y_test, k)
     print("the prediction is:", prediction)
     print("Begin Create!")
+    #if (os.path.exists('tempX'):
+    #    
+    #else:
+    #    X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     print("Create End!")
     new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, 1)
+    
     print("the prediction is:", prediction)
     print("the new prediction is:", new_prediction)
-
+    print("the new score is: ", new_clf.score(X_test, y_test))
 # for clf_key in clfs.keys():
 #     print('\nthe classifier is:', clf_key)
 #     clf = clfs[clf_key]
