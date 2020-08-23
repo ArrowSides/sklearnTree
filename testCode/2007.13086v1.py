@@ -125,7 +125,7 @@ def get_new_data(clf, X, y):
 def PredictionTest(X_train, X_test, y_train, y_test, k):
     clf_tree = tree.DecisionTreeClassifier(min_samples_leaf=k)
     clf_tree.fit(X_train, y_train.ravel(), )
-    predict = np.divide((y_train == clf_tree.predict(X_train)).sum(), y_train.size, dtype = float)
+    predict = np.divide((y_test == clf_tree.predict(X_test)).sum(), y_test.size, dtype = float)
     return predict, clf_tree
 
 if __name__ == '__main__':
@@ -144,11 +144,11 @@ if __name__ == '__main__':
     #    X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     print("Create End!")
-    new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, 1)
+    new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, 10)
     
     print("the prediction is:", prediction)
     print("the new prediction is:", new_prediction)
-    print("the new score is: ", new_clf.score(X_test, y_test))
+#    print("the new score is: ", new_clf.score(X_test, y_test))
 # for clf_key in clfs.keys():
 #     print('\nthe classifier is:', clf_key)
 #     clf = clfs[clf_key]
