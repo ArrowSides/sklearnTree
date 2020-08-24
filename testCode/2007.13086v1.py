@@ -95,6 +95,8 @@ def get_new_data(clf, X, y):
     print("Finish Point selection")
 #    f = open("tempX", "w")
     file_name = "tempX"
+    if os.path.exists(file_name):
+        os.remove(file_name)
     for ind in tqdm(range(clf.get_n_leaves())):
         for i in range(len(group_matrix[ind])):
             temp_list = []
@@ -105,7 +107,10 @@ def get_new_data(clf, X, y):
             else:
                   temp_pd_data.to_csv(file_name, mode='a+', index=False, header=False)
             #res.append(X.to_numpy()[represent_point_ind[index]])
-            res_label.append(y.to_numpy()[represent_point_ind[ind]])
+            #res_label.append(y.to_numpy()[represent_point_ind[ind]])
+            res_label.append(clf.predict(temp_pd_data)[0])
+            #print(clf.predict(temp_pd_data)[0])
+            #print(type(y.to_numpy()[represent_point_ind[ind]]))
         #gc.collect()
     print("Finish Data Rebuild")
 #    f.close()
@@ -117,7 +122,7 @@ def get_new_data(clf, X, y):
     #print(np.array(res))
     #res_DataFrame = pd.DataFrame(data = res, columns = X.columns())
     res_DataFrame = pd.read_csv(file_name)
-    os.remove(file_name)
+#    os.remove(file_name)
     res_Label = pd.Series(res_label)
     return res_DataFrame, res_Label
 
@@ -131,12 +136,12 @@ def PredictionTest(X_train, X_test, y_train, y_test, k):
 if __name__ == '__main__':
     path = "./Data/UCI/ConfLongDemo_JSI.txt"
     df = pd.read_table(path, sep=',')
-    k = 100
+    k = 50
     X, y = preprocessing(df)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.10, shuffle=True)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.01, shuffle=True)
     print('\nthe classifier is:', 'decision_tree')
     prediction, clf = PredictionTest(X_train, X_test, y_train, y_test, k)
-    print("the prediction is:", prediction)
+    #print("the prediction is:", prediction)
     print("Begin Create!")
     #if (os.path.exists('tempX'):
     #    
@@ -145,8 +150,8 @@ if __name__ == '__main__':
     X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     print("Create End!")
     new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, 10)
-    
-    print("the prediction is:", prediction)
+    old_prediction, old_clf = PredictionTest(X_train, X_test, y_train, y_test, 10)
+    print("the old prediction is:", old_prediction)
     print("the new prediction is:", new_prediction)
 #    print("the new score is: ", new_clf.score(X_test, y_test))
 # for clf_key in clfs.keys():
