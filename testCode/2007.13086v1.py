@@ -22,21 +22,24 @@ def preprocessing(df):
     for col in cat_features:
         df[col] = df[col].astype('object')
     X_cat = df[cat_features]
-    X_cat = pd.get_dummies(X_cat)
+    X_cat = pd.get_dummies(X_cat)    #one-hot encoding
     #print(X_cat.head())
 
-    scale_X = StandardScaler()
+    scale_X = StandardScaler()    #standardization
     num_features = ['Timestamp', 'x', 'y', 'z']
-    X_num = scale_X.fit_transform(df[num_features])
+#    X_num = scale_X.fit_transform(df[num_features])
+    X_num = df[num_features]
     col_mean = np.nanmean(X_num, axis=0)
     inds = np.where(np.isnan(X_num))
-    X_num[inds] = np.take(col_mean,inds[1])
-     
+    X_num[inds] = np.take(col_mean, inds[1])   #nan insert value
+    new_X = scale_X.inverse_transform(X_num)
+#    print(new_X[0])
     X_num = normalize(X_num, norm='l2')
     X_num = pd.DataFrame(data=X_num, columns=num_features, index=df.index)
     #print(X_num.head())
-
+#    X = X_num
     X = pd.concat([X_cat, X_num], axis=1, ignore_index=False)
+    #print(scale_X.inverse_transform())
     y = df['activity']
     #print(X.head())
     #print(X.shape)
@@ -88,12 +91,16 @@ def get_new_data(clf, X, y):
     print("Get Represent Point Stage End")
     for ind in tqdm(range(clf.get_n_leaves())):
         typical_node = []
+    #    temp_index =
+        if (len(group_matrix[ind]) == 0):
+            continue
         for res_node in group_matrix[ind]:
             typical_node.append(X.to_numpy()[res_node])
+#        if (len(typical_node) == 0):
+#            print("fail")
         temp_index = find_point(typical_node)
         represent_point_ind.append(temp_index)
     print("Finish Point selection")
-#    f = open("tempX", "w")
     file_name = "tempX"
     if os.path.exists(file_name):
         os.remove(file_name)
@@ -108,12 +115,12 @@ def get_new_data(clf, X, y):
                   temp_pd_data.to_csv(file_name, mode='a+', index=False, header=False)
             #res.append(X.to_numpy()[represent_point_ind[index]])
             #res_label.append(y.to_numpy()[represent_point_ind[ind]])
+            #print(y.to_numpy()[represent_point_ind[ind]])
             res_label.append(clf.predict(temp_pd_data)[0])
             #print(clf.predict(temp_pd_data)[0])
             #print(type(y.to_numpy()[represent_point_ind[ind]]))
         #gc.collect()
     print("Finish Data Rebuild")
-#    f.close()
     #print(X_test)
     #print(X_test.columns)
     #print(len(X_test.values))
@@ -138,7 +145,7 @@ if __name__ == '__main__':
     df = pd.read_table(path, sep=',')
     k = 50
     X, y = preprocessing(df)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.01, shuffle=True)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.05, shuffle=True)
     print('\nthe classifier is:', 'decision_tree')
     prediction, clf = PredictionTest(X_train, X_test, y_train, y_test, k)
     #print("the prediction is:", prediction)
@@ -150,7 +157,7 @@ if __name__ == '__main__':
     X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     print("Create End!")
     new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, 10)
-    old_prediction, old_clf = PredictionTest(X_train, X_test, y_train, y_test, 10)
+    old_prediction, old_clf = PredictionTest(X_test, X_test, y_test, y_test, 10)
     print("the old prediction is:", old_prediction)
     print("the new prediction is:", new_prediction)
 #    print("the new score is: ", new_clf.score(X_test, y_test))
