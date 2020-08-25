@@ -27,8 +27,8 @@ def preprocessing(df):
 
     scale_X = StandardScaler()    #standardization
     num_features = ['Timestamp', 'x', 'y', 'z']
-#    X_num = scale_X.fit_transform(df[num_features])
-    X_num = df[num_features]
+    X_num = scale_X.fit_transform(df[num_features])
+#    X_num = df[num_features]
     col_mean = np.nanmean(X_num, axis=0)
     inds = np.where(np.isnan(X_num))
     X_num[inds] = np.take(col_mean, inds[1])   #nan insert value
@@ -105,22 +105,24 @@ def get_new_data(clf, X, y):
     if os.path.exists(file_name):
         os.remove(file_name)
     for ind in tqdm(range(clf.get_n_leaves())):
-        for i in range(len(group_matrix[ind])):
-            temp_list = []
-            temp_list.append(X.to_numpy()[represent_point_ind[ind]])
-            temp_pd_data = pd.DataFrame(temp_list, columns = X.columns.values)#, columns = X.columns())
-            if ((ind == 0) & (i == 0)):
-                  temp_pd_data.to_csv(file_name, mode='a+', index=False)
-            else:
-                  temp_pd_data.to_csv(file_name, mode='a+', index=False, header=False)
+#        for i in range(len(group_matrix[ind])):
+        temp_list = []
+        temp_list.append(X.to_numpy()[represent_point_ind[ind]])
+        temp_pd_data = pd.DataFrame(temp_list, columns = X.columns.values)#, columns = X.columns())
+        #if ((ind == 0) & (i == 0)):
+        if (ind == 0):
+            temp_pd_data.to_csv(file_name, mode='a+', index=False)
+        else:
+            temp_pd_data.to_csv(file_name, mode='a+', index=False, header=False)
             #res.append(X.to_numpy()[represent_point_ind[index]])
             #res_label.append(y.to_numpy()[represent_point_ind[ind]])
             #print(y.to_numpy()[represent_point_ind[ind]])
-            res_label.append(clf.predict(temp_pd_data)[0])
+        res_label.append(clf.predict(temp_pd_data)[0])
             #print(clf.predict(temp_pd_data)[0])
             #print(type(y.to_numpy()[represent_point_ind[ind]]))
         #gc.collect()
     print("Finish Data Rebuild")
+    print("new data:", len(res_label))
     #print(X_test)
     #print(X_test.columns)
     #print(len(X_test.values))
@@ -129,7 +131,7 @@ def get_new_data(clf, X, y):
     #print(np.array(res))
     #res_DataFrame = pd.DataFrame(data = res, columns = X.columns())
     res_DataFrame = pd.read_csv(file_name)
-#    os.remove(file_name)
+    os.remove(file_name)
     res_Label = pd.Series(res_label)
     return res_DataFrame, res_Label
 
@@ -145,7 +147,8 @@ if __name__ == '__main__':
     df = pd.read_table(path, sep=',')
     k = 50
     X, y = preprocessing(df)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.05, shuffle=True)
+    print("NUM: ", len(y))
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.01, shuffle=True)
     print('\nthe classifier is:', 'decision_tree')
     prediction, clf = PredictionTest(X_train, X_test, y_train, y_test, k)
     #print("the prediction is:", prediction)
@@ -156,8 +159,9 @@ if __name__ == '__main__':
     #    X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     print("Create End!")
-    new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, 10)
-    old_prediction, old_clf = PredictionTest(X_test, X_test, y_test, y_test, 10)
+    X_select_train, X_rest_train, y_select_train, y_rest_train = train_test_split(X_train, y_train, random_state = None, test_size = 0.015, shuffle=True)
+    new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, 5)
+    old_prediction, old_clf = PredictionTest(X_rest_train, X_test, y_rest_train, y_test, 5)
     print("the old prediction is:", old_prediction)
     print("the new prediction is:", new_prediction)
 #    print("the new score is: ", new_clf.score(X_test, y_test))
