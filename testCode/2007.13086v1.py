@@ -14,15 +14,15 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import GradientBoostingClassifier 
 import time
 from tqdm import trange, tqdm
-import os
+import os, random
 
 
 def preprocessing(df):
-    cat_features = ['SequenceName', 'TagIdentificator']
-    for col in cat_features:
-        df[col] = df[col].astype('object')
-    X_cat = df[cat_features]
-    X_cat = pd.get_dummies(X_cat)    #one-hot encoding
+#    cat_features = ['SequenceName', 'TagIdentificator']
+#    for col in cat_features:
+#        df[col] = df[col].astype('object')
+#    X_cat = df[cat_features]
+#    X_cat = pd.get_dummies(X_cat)    #one-hot encoding
     #print(X_cat.head())
 
     scale_X = StandardScaler()    #standardization
@@ -37,8 +37,8 @@ def preprocessing(df):
     X_num = normalize(X_num, norm='l2')
     X_num = pd.DataFrame(data=X_num, columns=num_features, index=df.index)
     #print(X_num.head())
-#    X = X_num
-    X = pd.concat([X_cat, X_num], axis=1, ignore_index=False)
+    X = X_num
+#    X = pd.concat([X_cat, X_num], axis=1, ignore_index=False)
     #print(scale_X.inverse_transform())
     y = df['activity']
     #print(X.head())
@@ -73,7 +73,8 @@ def find_point(Xsets):
         DistanceList.append(temp_dist)
     return DistanceList.index(min(DistanceList))
     
-
+def find_random_point(Xsets):
+    return random.randint(0, len(Xsets) - 1)
 
 def get_new_data(clf, X, y):
     res_leaf = clf.apply(X)
@@ -99,13 +100,14 @@ def get_new_data(clf, X, y):
 #        if (len(typical_node) == 0):
 #            print("fail")
         temp_index = find_point(typical_node)
+#        temp_index = find_random_point(typical_node)
         represent_point_ind.append(temp_index)
     print("Finish Point selection")
     file_name = "tempX"
     if os.path.exists(file_name):
         os.remove(file_name)
     for ind in tqdm(range(clf.get_n_leaves())):
-#        for i in range(len(group_matrix[ind])):
+    #    for i in range(len(group_matrix[ind])):
         temp_list = []
         temp_list.append(X.to_numpy()[represent_point_ind[ind]])
         temp_pd_data = pd.DataFrame(temp_list, columns = X.columns.values)#, columns = X.columns())
@@ -115,7 +117,7 @@ def get_new_data(clf, X, y):
         else:
             temp_pd_data.to_csv(file_name, mode='a+', index=False, header=False)
             #res.append(X.to_numpy()[represent_point_ind[index]])
-            #res_label.append(y.to_numpy()[represent_point_ind[ind]])
+        #res_label.append(y.to_numpy()[represent_point_ind[ind]])
             #print(y.to_numpy()[represent_point_ind[ind]])
         res_label.append(clf.predict(temp_pd_data)[0])
             #print(clf.predict(temp_pd_data)[0])
@@ -160,6 +162,8 @@ if __name__ == '__main__':
     X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     print("Create End!")
     X_select_train, X_rest_train, y_select_train, y_rest_train = train_test_split(X_train, y_train, random_state = None, test_size = 0.015, shuffle=True)
+    print("The number of new train:", len(y_new_train))
+    print("The number of old train:", len(y_rest_train))
     new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, 5)
     old_prediction, old_clf = PredictionTest(X_rest_train, X_test, y_rest_train, y_test, 5)
     print("the old prediction is:", old_prediction)
