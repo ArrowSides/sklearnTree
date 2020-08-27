@@ -73,16 +73,8 @@ def find_point(Xsets):
         DistanceList.append(temp_dist)
     return DistanceList.index(min(DistanceList))
     
-def find_random_point(Xsets, upper_limit):
-    res_index = []
-    if ((len(Xsets) < upper_limit) | (len(Xsets) == upper_limit)):
-        return range(len(Xsets))
-    while(len(res_index) < upper_limit):
-        temp_value = random.randint(0, len(Xsets) - 1)
-        if temp_value not in res_index:
-             res_index.append(temp_value)
-#    print("select Num:", len(res_index))
-    return res_index
+def find_random_point(Xsets):
+    return random.randint(0, len(Xsets) - 1)
 
 def get_new_data(clf, X, y):
     res_leaf = clf.apply(X)
@@ -96,16 +88,15 @@ def get_new_data(clf, X, y):
             leaf_node.append(res_leaf[ind])
         group_matrix[leaf_node.index(res_leaf[ind])].append(ind)
     #print(X.to_numpy()[0])
-#    print(group_matrix[0])
-#    time.sleep(1000)
+    #print(group_matrix)
     print("Get Represent Point Stage End")
     for ind in tqdm(range(clf.get_n_leaves())):
         typical_node = []
     #    temp_index =
         if (len(group_matrix[ind]) == 0):
             continue
-        for gm_indx in range(len(group_matrix[ind])):
-            typical_node.append(X.to_numpy()[group_matrix[ind][gm_indx]])
+        for res_node in group_matrix[ind]:
+            typical_node.append(X.to_numpy()[res_node])
 #        if (len(typical_node) == 0):
 #            print("fail")
         temp_index = find_point(typical_node)
@@ -118,27 +109,17 @@ def get_new_data(clf, X, y):
     for ind in tqdm(range(clf.get_n_leaves())):
     #    for i in range(len(group_matrix[ind])):
         temp_list = []
-        #for indx in represent_point_ind[ind]:
-        indx = represent_point_ind[ind]
-        temp_list.append(X.to_numpy()[group_matrix[ind][indx]])
-        res_label.append(y.to_numpy()[group_matrix[ind][indx]])
-        #temp_list.append(X.to_numpy()[represent_point_ind[ind]])
+        temp_list.append(X.to_numpy()[represent_point_ind[ind]])
         temp_pd_data = pd.DataFrame(temp_list, columns = X.columns.values)#, columns = X.columns())
         #if ((ind == 0) & (i == 0)):
         if (ind == 0):
             temp_pd_data.to_csv(file_name, mode='a+', index=False)
-            #print(temp_pd_data)
         else:
             temp_pd_data.to_csv(file_name, mode='a+', index=False, header=False)
             #res.append(X.to_numpy()[represent_point_ind[index]])
         #res_label.append(y.to_numpy()[represent_point_ind[ind]])
             #print(y.to_numpy()[represent_point_ind[ind]])
-        #for indexN in range(len(temp_pd_data)):
-        #temp_res = clf.predict(temp_pd_data)
-        #for indexItem in range(len(temp_res)):
-        #    res_label.append(temp_res[indexItem])
-        #res_label.append(clf.predict(temp_pd_data))
-        #print(res_label)
+        res_label.append(clf.predict(temp_pd_data)[0])
             #print(clf.predict(temp_pd_data)[0])
             #print(type(y.to_numpy()[represent_point_ind[ind]]))
         #gc.collect()
@@ -180,7 +161,7 @@ if __name__ == '__main__':
     #    X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
     print("Create End!")
-    X_select_train, X_rest_train, y_select_train, y_rest_train = train_test_split(X_train, y_train, random_state = None, test_size = 0.50, shuffle=True)
+    X_select_train, X_rest_train, y_select_train, y_rest_train = train_test_split(X_train, y_train, random_state = None, test_size = 0.015, shuffle=True)
     print("The number of new train:", len(y_new_train))
     print("The number of old train:", len(y_rest_train))
     new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, 5)
