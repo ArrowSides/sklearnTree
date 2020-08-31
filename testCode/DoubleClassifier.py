@@ -16,17 +16,16 @@ import time
 from tqdm import trange, tqdm
 import os, random
 
-
 def preprocessing(df):
-#    cat_features = ['SequenceName', 'TagIdentificator']
-#    for col in cat_features:
-#        df[col] = df[col].astype('object')
-#    X_cat = df[cat_features]
-#    X_cat = pd.get_dummies(X_cat)    #one-hot encoding
+    cat_features = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'native-country']
+    for col in cat_features:
+        df[col] = df[col].astype('object')
+    X_cat = df[cat_features]
+    X_cat = pd.get_dummies(X_cat)    #one-hot encoding
     #print(X_cat.head())
 
     scale_X = StandardScaler()    #standardization
-    num_features = ['Timestamp', 'x', 'y', 'z']
+    num_features = ['age', 'fnlwgt', 'education-num', 'capital-gain', 'capital-loss', 'hours-per-week']
     X_num = scale_X.fit_transform(df[num_features])
 #    X_num = df[num_features]
     col_mean = np.nanmean(X_num, axis=0)
@@ -40,18 +39,12 @@ def preprocessing(df):
     X = X_num
 #    X = pd.concat([X_cat, X_num], axis=1, ignore_index=False)
     #print(scale_X.inverse_transform())
-    y = df['activity']
+    y = df['weights']
     #print(X.head())
     #print(X.shape)
     #print(y.shape)
 
     return X, y
-
-
-#print(X_train.shape, y_train.shape)
-#print(X_test.shape, y_test.shape)
-
-
 def find_point(Xsets):
     DistanceList = []
     for i in range(len(Xsets)):
@@ -172,15 +165,16 @@ def BuildModel(X_train, y_train, clf):
 
 
 if __name__ == '__main__':
-    path = "./Data/UCI/ConfLongDemo_JSI.txt"
+    path = "./Data/UCI/adult.data"
     df = pd.read_table(path, sep=',')
     k = 50
+    # print(df[''])
     X, y = preprocessing(df)
     print("NUM: ", len(y))
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.01, shuffle=True)
     clfs = {
-       #'K_neighbor': neighbors.KNeighborsClassifier(),
-       #'decision_tree': tree.DecisionTreeClassifier(min_samples_leaf=k),
+       'K_neighbor': neighbors.KNeighborsClassifier(),
+       'decision_tree': tree.DecisionTreeClassifier(min_samples_leaf=k),
        'naive_gaussian': naive_bayes.GaussianNB(),
        'svm': svm.SVC(),
        'bagging_knn': BaggingClassifier(neighbors.KNeighborsClassifier(), max_samples=0.5,max_features=0.5),
@@ -192,15 +186,19 @@ if __name__ == '__main__':
     for clf_index in clfs.keys():
         print("the classifier is:", clf_index)
         now_clf = clfs.get(clf_index) 
+        
         print("------------Using prediction result-----------")
         clf_n = BuildModel(X_train, y_train, now_clf)
         X_cre_train, y_cre_train = get_new_data_from_model(clf_n, X_train)
+    
     #    print(y_cre_train)
     #    print(y_train)
     #    time.sleep(1000)
         # print('\nthe classifier is:', clf)
+    
         prediction, clf = PredictionTest(X_cre_train, X_test, y_cre_train, y_test, k)
-        #print("the prediction is:", prediction)
+        print("the prediction is:", prediction)
+    
         print("Begin Create!")
         #if (os.path.exists('tempX'):
         #    
@@ -217,41 +215,3 @@ if __name__ == '__main__':
     #    print("the new prediction is:", new_prediction)
         print("old score: ", ModelPredictionTest(X_train, X_test, y_train, y_test, now_clf))
         print("new score: ", ModelPredictionTest(X_new_train, X_test, y_new_train, y_test, now_clf))
-    
-    
- #   print("-----------Using The raw Data------------")
- #   prediction_old, clf_tree = PredictionTest(X_cre_train, X_test, y_cre_train, y_test, k)
- #   X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
-    # new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, 5)
-    # old_prediction, old_clf = PredictionTest(X_train, X_test, y_train, y_test, 5)
- #   print("new score: ", RandomForestPredictionTest(X_new_train, X_test, y_new_train, y_test))
- #   print("old score: ", ModelPredictionTest(X_train, X_test, y_train, y_test))
-
-
-#    print("the new score is: ", new_clf.score(X_test, y_test))
-# for clf_key in clfs.keys():
-#     print('\nthe classifier is:', clf_key)
-#     clf = clfs[clf_key]
-#     #print(type(y_train.ravel()))
-#     #print(np.isnan(X_train).any())
-#     #print(np.count_nonzero(np.isnan(X_train)))
-#     #print(np.isnan(X_train))
-#     begin = time.process_time()
-#     clf.fit(X_train, y_train.ravel(), )
-#     elapsed = time.process_time() - begin
-#     #print(X_test)
-#     #print(y_test.ravel())
-#     prediction = np.divide((y_train == clf.predict(X_train)).sum(), y_train.size, dtype = float)
-# #    res_leaf = clf.apply(X_test)
-# #    print(res_leaf[3])
-# #    print('the score is:', res_leaf)
-# #    print('Tree leafs: ', clf.get_n_leaves())
-# #    print('the elapsed is:', elapsed)
-# #    print(X_test.to_numpy())
-#     print("Begin Create!")
-#     X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
-#     print("Create End!")
-#     PredictionTest(X_new_train, X_test, y_new_train, y_test)
-#     print("the prediction is:", prediction)
-
-    #print(len(get_new_data(clf, X_test)))
