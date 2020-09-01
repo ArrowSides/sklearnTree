@@ -1,0 +1,31 @@
+the classifier is:decision_tree
+The number of new train:32235
+The number of old train:32235
+old score: 0.7883435582822086
+new score: 0.7085889570552147
+the classifier is:decision_tree
+The number of new train:32235
+The number of old train:32235
+old score: 0.7883435582822086
+new score: 0.7024539877300614
+the classifier is:decision_tree
+The number of new train:32235
+The number of old train:32235
+old score: 0.7822085889570553
+new score: 0.7177914110429447
+the classifier is:decision_tree
+The number of new train:32235
+The number of old train:32235
+old score: 0.7883435582822086
+new score: 0.7024539877300614
+the classifier is:decision_tree
+The number of new train:32235
+The number of old train:32235
+old score: 0.7852760736196319
+new score: 0.7361963190184049
+the classifier is:decision_tree
+The number of new train:32235
+The number of old train:32235
+old score: 0.7852760736196319
+new score: 0.7300613496932515
+the classifier is:random_forest

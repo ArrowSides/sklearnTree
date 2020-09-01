@@ -167,51 +167,58 @@ def BuildModel(X_train, y_train, clf):
 if __name__ == '__main__':
     path = "./Data/UCI/adult.data"
     df = pd.read_table(path, sep=',')
-    k = 50
+    k_list = [10, 20, 50, 100, 200, 500]
+    k = 5
     # print(df[''])
     X, y = preprocessing(df)
     print("NUM: ", len(y))
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0, test_size=0.01, shuffle=True)
     clfs = {
-       'K_neighbor': neighbors.KNeighborsClassifier(),
+#       'K_neighbor': neighbors.KNeighborsClassifier(),
        'decision_tree': tree.DecisionTreeClassifier(min_samples_leaf=k),
-       'naive_gaussian': naive_bayes.GaussianNB(),
-       'svm': svm.SVC(),
-       'bagging_knn': BaggingClassifier(neighbors.KNeighborsClassifier(), max_samples=0.5,max_features=0.5),
-       'bagging_tree': BaggingClassifier(tree.DecisionTreeClassifier(), max_samples=0.5,max_features=0.5),
+#       'naive_gaussian': naive_bayes.GaussianNB(),
+#       'svm': svm.SVC(),
+#       'bagging_knn': BaggingClassifier(neighbors.KNeighborsClassifier(), max_samples=0.5,max_features=0.5),
+#       'bagging_tree': BaggingClassifier(tree.DecisionTreeClassifier(), max_samples=0.5,max_features=0.5),
        'random_forest': RandomForestClassifier(n_estimators=50),
-       'adaboost': AdaBoostClassifier(n_estimators=50),
+#       'adaboost': AdaBoostClassifier(n_estimators=50),
        'gradient_boost': GradientBoostingClassifier(n_estimators=50, learning_rate=1.0,max_depth=1, random_state=0)
     }
+    fp = open('outputR_new.txt', 'a+')
     for clf_index in clfs.keys():
-        print("the classifier is:", clf_index)
-        now_clf = clfs.get(clf_index) 
+        for k in k_list:
+            #print(type(clf_index))
+            print("the classifier is:", clf_index)
+            fp.write("the classifier is:" + clf_index + "\n")
+            now_clf = clfs.get(clf_index) 
+            
+            print("------------Using prediction result-----------")
+            clf_n = BuildModel(X_train, y_train, now_clf)
+            X_cre_train, y_cre_train = get_new_data_from_model(clf_n, X_train)
         
-        print("------------Using prediction result-----------")
-        clf_n = BuildModel(X_train, y_train, now_clf)
-        X_cre_train, y_cre_train = get_new_data_from_model(clf_n, X_train)
-    
-    #    print(y_cre_train)
-    #    print(y_train)
-    #    time.sleep(1000)
-        # print('\nthe classifier is:', clf)
-    
-        prediction, clf = PredictionTest(X_cre_train, X_test, y_cre_train, y_test, k)
-        print("the prediction is:", prediction)
-    
-        print("Begin Create!")
-        #if (os.path.exists('tempX'):
-        #    
-        #else:
-        #    X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
-        X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
-        print("Create End!")
-        #X_select_train, X_rest_train, y_select_train, y_rest_train = train_test_split(X_train, y_train, random_state = None, test_size = 0.50, shuffle=True)
-        print("The number of new train:", len(y_new_train))
-        print("The number of old train:", len(y_train))
-    #    new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, 5)
-    #    old_prediction, old_clf = PredictionTest(X_train, X_test, y_train, y_test, 5)
-    #    print("the old prediction is:", old_prediction)
-    #    print("the new prediction is:", new_prediction)
-        print("old score: ", ModelPredictionTest(X_train, X_test, y_train, y_test, now_clf))
-        print("new score: ", ModelPredictionTest(X_new_train, X_test, y_new_train, y_test, now_clf))
+            prediction, clf = PredictionTest(X_cre_train, X_test, y_cre_train, y_test, k)
+            #print("the prediction is:", prediction)
+        
+            print("Begin Create!")
+            #if (os.path.exists('tempX'):
+            #    
+            #else:
+            #    X_new_train, y_new_train = get_new_data(clf, X_train, y_train)
+            X_new_train, y_new_train = get_new_data(clf, X_cre_train, y_cre_train)
+            print("Create End!")
+            #X_select_train, X_rest_train, y_select_train, y_rest_train = train_test_split(X_train, y_train, random_state = None, test_size = 0.50, shuffle=True)
+            print("The number of new train:", len(y_new_train))
+            print("The number of old train:", len(y_cre_train))
+        #    new_prediction, new_clf = PredictionTest(X_new_train, X_test, y_new_train, y_test, 5)
+        #    old_prediction, old_clf = PredictionTest(X_train, X_test, y_train, y_test, 5)
+        #    print("the old prediction is:", old_prediction)
+        #    print("the new prediction is:", new_prediction)
+            old_score = ModelPredictionTest(X_train, X_test, y_train, y_test, now_clf)
+            new_score = ModelPredictionTest(X_new_train, X_test, y_new_train, y_test, now_clf)
+            print("old score: ", old_score)
+            print("new score: ", new_score)
+            fp.write("The number of new train:" + str(len(y_new_train)) + "\n")
+            fp.write("The number of old train:" + str(len(y_train))+ "\n")
+            fp.write("old score: " + str(old_score) + "\n")
+            fp.write("new score: " + str(new_score) + "\n")
+    fp.close()
